@@ -29,9 +29,7 @@ function App() {
           setData(data.results)
         } else {
           setMessage('Results not found')
-        }
-        console.log(data)
-  
+        }  
       }
       fetchData()
     }
