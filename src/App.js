@@ -1,31 +1,30 @@
-import { useEffect, useState, useRef, Suspense } from 'react'
-import { BrowserRouter as Router, Route, Redirect } from 'react-router-dom'
-
 import './App.css';
+import { useState, Suspense, useRef } from 'react'
+import { BrowserRouter as Router, Route } from 'react-router-dom'
+import ArtistView from './components/ArtistView'
+import AlbumView from './components/AlbumView'
 import Gallery from './components/Gallery'
 import SearchBar from './components/SearchBar'
-import AlbumView from './components/AlbumView'
-import ArtistView from './components/ArtistView'
+import Spinner from './components/Spinner'
 import { DataContext } from './context/DataContext'
 import { SearchContext } from './context/SearchContext'
-import Spinner from './components/Spinner'
 import { createResource as fetchData } from './helper'
 
-function App() {
-  let [data, setData] = useState([])
-  let [message, setMessage] = useState('Search for Music!')
+const App = () => {
   let searchInput = useRef('')
+  let [data, setData] = useState(null)
+  let [message, setMessage] = useState('Search for Music!')
 
   const handleSearch = (e, term) => {
     e.preventDefault()
-    setSearchTerm(term)
+    setData(fetchData(term, 'main'))
   }
 
   const renderGallery = () => {
-    if(data){
+    if(data) {
       return (
         <Suspense fallback={<Spinner />}>
-          <Gallery data={data} />
+          <Gallery />
         </Suspense>
       )
     }
@@ -33,23 +32,23 @@ function App() {
 
   return (
     <div className="App">
-    {message}
-    <Router>
-      <Route exact path={'/'}>
-        <SearchContext.Provider value={{term: searchInput, handleSearch: handleSearch}}>
-          <SearchBar />
-        </SearchContext.Provider>
-          <DataContext.Provider value={data}>
-            {renderGallery()}
-          </DataContext.Provider>
-      </Route>
-      <Route path="/album/:id">
-        <AlbumView />
-      </Route>
-      <Route path="/artist/:id">
-        <ArtistView />
-      </Route>
-    </Router>
+      {message}
+      <Router>
+        <Route exact path={'/'}>
+          <SearchContext.Provider value={{term: searchInput, handleSearch: handleSearch}}>
+            <SearchBar />
+          </SearchContext.Provider>
+            <DataContext.Provider value={data}>
+              {renderGallery()}
+            </DataContext.Provider>
+        </Route>
+        <Route path="/album/:id">
+          <AlbumView />
+        </Route>
+        <Route path="/artist/:id">
+          <ArtistView />
+        </Route>
+      </Router>
     </div>
   );
 }
