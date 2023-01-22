@@ -1,46 +1,37 @@
-import { useState, useEffect } from 'react';
-
-import SearchBar from './Components/SearchBar';
-import Gallery from './Components/Gallery';
-import { DataContext } from './Context/DataContext';
+import './App.css';
+import { useState, useRef } from 'react'
+import Gallery from './components/Gallery'
+import SearchBar from './components/SearchBar'
+import { DataContext } from './context/DataContext'
+import { SearchContext } from './context/SearchContext'
 
 function App() {
-  const [ search, setSearch ] = useState('')
-  const [ message, setMessage ] = useState('Search for music')
-  const [ data, setData ] = useState([])
+  let [data, setData] = useState([])
+  let [message, setMessage] = useState('Search for Music!')
+  let searchInput = useRef('')
 
   const handleSearch = (e, term) => {
     e.preventDefault()
-    setSearch(term)
+    fetch(`https://itunes.apple.com/search?term=${term}`)
+    .then(response => response.json())
+    .then(resData => {
+      if (resData.results.length > 0) {
+        return setData(resData.results)
+      } else {
+        return setMessage('Not Found.')
+      }
+    })
+    .catch(err => setMessage('An Error has Occurred!'))
   }
 
-  useEffect(() => {
-    if (search) {
-      const fetchData = async () => {
-        const Base_URL = 'https://itunes.apple.com/search?term='
-        const encodedSearchTerm = encodeURIComponent(search)
-        const url = Base_URL + encodedSearchTerm
-        const response = await fetch(url)
-        const data = await response.json()
-  
-        if (data.results.length > 0) {
-          setData(data.results)
-        } else {
-          setMessage('Results not found')
-        }
-        console.log(data)
-  
-      }
-      fetchData()
-    }
-  }, [search])
-
   return (
-    <div >
-      <SearchBar handleSearch={handleSearch}/>
+    <div className="App">
+      <SearchContext.Provider value={{term: searchInput, handleSearch: handleSearch}}>
+        <SearchBar />
+      </SearchContext.Provider>
       {message}
       <DataContext.Provider value={data}>
-        <Gallery />  
+        <Gallery />
       </DataContext.Provider>
     </div>
   );
