@@ -1,10 +1,15 @@
 import GalleryItem from './GalleryItem'
+import { DataContext } from '../context/DataContext'
+import GalleryItem from './GalleryItem'
 
 const Gallery = ({ data }) => {
-  const display = data.map((item, i) => {
-    return (
-      <GalleryItem key={i} item={item} />
-    )
+  const data = useContext(DataContext)
+  const myData = data.result.read()
+
+  const display = myData.map((item, index) => {
+      return (
+          <GalleryItem item={item} key={index} />
+      )
   })
 
   return (
