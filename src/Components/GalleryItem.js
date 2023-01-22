@@ -32,7 +32,7 @@ const GalleryItem = ({ item }) => {
 
   const detailedView = () => {
     return (
-      <div style={item.detailedStyle}>
+      <div style={detailedStyle}>
         <h2>{item.trackName}</h2>
         <h3>{item.collectionName}</h3>
         <h4>{item.primaryGenreName}</h4>
