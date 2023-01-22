@@ -1,61 +1,64 @@
-import { useState, useEffect } from "react";
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
-import Searchbar from "./Components/Searchbar";
-import Gallery from './Components/Gallery'
-import { DataContext } from "./Context/DataContext";
-import AlbumView from "./Components/AlbumView";
-import ArtistView from './Components/ArtistView'
-
+import './App.css';
+import { useEffect, useState } from 'react'
+import { BrowserRouter as Router, Route, Redirect } from 'react-router-dom'
+import Gallery from './components/Gallery'
+import SearchBar from './components/SearchBar'
+import AlbumView from './components/AlbumView'
+import ArtistView from './components/ArtistView'
 
 function App() {
-  const [ search, setSearch ] = useState('')
-  const [ message, setMessage ] = useState('Search for music')
-  const [ data, setData ] = useState([])
+  let [searchTerm, setSearchTerm] = useState('')
+  let [data, setData] = useState([])
+  let [message, setMessage] = useState('Search for Music!')
 
-  const handleSearch = (e, term) => {
-    e.preventDefault()
-    setSearch(term)
+  const API_URL = `https://itunes.apple.com/search?term=`
+
+  function toTitleCase(str) {
+    return str.replace(
+      /\w\S*/g,
+      function(txt) {
+        return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+      }
+    );
   }
 
   useEffect(() => {
-    if (search) {
+    if (searchTerm) {
+      document.title=`${searchTerm} Music`
       const fetchData = async () => {
-        const Base_URL = 'https://itunes.apple.com/search?term='
-        const encodedSearchTerm = encodeURIComponent(search)
-        const url = Base_URL + encodedSearchTerm
-        const response = await fetch(url)
-        const data = await response.json()
-  
-        if (data.results.length > 0) {
-          setData(data.results)
+        const response = await fetch(API_URL + searchTerm)
+        const resData = await response.json()
+        if(resData.results.length > 0) {
+          setData(resData.results)
         } else {
-          setMessage('Results not found')
+          setMessage('Not Found')
         }
-        console.log(data)
-  
       }
       fetchData()
-    }
-  }, [search])
+  }
+  }, [searchTerm, API_URL])
+
+  const handleSearch = (e, term) => {
+    e.preventDefault()
+    term = toTitleCase(term)
+    setSearchTerm(term)
+    return (<Redirect to="/" />)
+  }
 
   return (
-    <div>
-      
+    <div className="App">
       {message}
       <Router>
-        <Routes>
-          <Route
-            path='/'
-            element={
-              <>
-                <Searchbar handleSearch={handleSearch} />
-                <Gallery data={data} />
-              </>
-            }
-          />
-          <Route path='/album/:albumId' element={<AlbumView />} />
-          <Route path='/artist/:artistId' element={<ArtistView />} />
-        </Routes>
+        <Route exact path="/">
+          <SearchBar handleSearch={handleSearch} />
+          <Gallery data={data} />
+        </Route>
+        <Route path="/album/:id">
+          <AlbumView term={searchTerm} />
+        </Route>
+        <Route path="/artist/:id">
+          <ArtistView term={searchTerm} />
+        </Route>
       </Router>
     </div>
   );
