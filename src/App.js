@@ -1,43 +1,39 @@
-import { useState, useEffect, Fragment, Suspense } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
-import SearchBar from './Components/SearchBar';
-import Gallery from './Components/Gallery';
-import AlbumView from './Components/AlbumView';
-import ArtistView from './Components/ArtistView';
-import { createResource as fetchData } from './Components/Helper'
-import Spinner from './Components/spinner';
 
+import './App.css';
+import { useState, Suspense, useEffect } from 'react'
+import Gallery from './components/Gallery'
+import SearchBar from './components/SearchBar'
+import Spinner from './components/Spinner'
+import { createResource as fetchData } from './helper'
 
 function App() {
-  const [ search, setSearch ] = useState('')
-  const [ message, setMessage ] = useState('Search for music')
-  const [ data, setData ] = useState(null)
+  let [searchTerm, setSearchTerm] = useState('')
+  let [message, setMessage] = useState('Search for Music!')
+  let [data, setData] = useState(null)
+
+  useEffect(() => {
+    if (searchTerm) {
+      document.title=`${searchTerm} Music`
+      console.log(fetchData(searchTerm))
+      setData(fetchData(searchTerm))
+  }
+  }, [searchTerm])
 
   const handleSearch = (e, term) => {
     e.preventDefault()
-    setSearch(term)
+    setSearchTerm(term)
   }
 
-  useEffect(() => {
-    if (search) {
-        setData(fetchData(search))
-    }
-  }, [search])
-
   const renderGallery = () => {
-  if (data) {
-    return (
-      <div>
+    if(data){
+      return (
         <Suspense fallback={<Spinner />}>
           <Gallery data={data} />
         </Suspense>
-
-      </div>
-    )
+      )
+    }
   }
-}
-
 
   return (
     <div className="App">
@@ -45,11 +41,7 @@ function App() {
       {message}
       {renderGallery()}
     </div>
-)
-
-
+  );
 }
 
 export default App;
-
-
