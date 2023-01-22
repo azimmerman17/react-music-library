@@ -1,11 +1,11 @@
-import GalleryItem from "./GalleryItem"
+import GalleryItem from './GalleryItem'
 
 const Gallery = ({ data }) => {
-const display = data.map((item, i) => {
-  return (
-    <GalleryItem key={i} item={item} />
-  )
-})
+  const display = data.map((item, i) => {
+    return (
+      <GalleryItem key={i} item={item} />
+    )
+  })
 
   return (
     <div>
